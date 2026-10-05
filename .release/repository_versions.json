@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "release": {
-    "version": "20260930",
-    "date": "2026-09-30"
+    "version": "20261001",
+    "date": "2026-10-01"
   },
   "repositories": [
     {
       "name": "vllm",
       "path": "./vllm",
       "type": "git-repository",
-      "version": "74119a7bc44f384e5aec07966b7974cbbb92d10b"
+      "version": "b3da1aa4922994ff2cbca9f0acfc0492e5786589"
     },
     {
       "name": "torch_mcpu",
@@ -21,7 +21,7 @@
       "name": "torch_xcpu",
       "path": "./torch_xcpu",
       "type": "git-repository",
-      "version": "c497e76ecdd05d90aa59cc012f3712283293bc3d"
+      "version": "38e7c39aa378b542263e85f71f57d2b8c5cbcdb8"
     },
     {
       "name": "torch_mpi_ext",
@@ -33,13 +33,13 @@
       "name": "vllm-xcpu-plugin",
       "path": "./vllm-xcpu-plugin",
       "type": "git-repository",
-      "version": "6d3af1cda6adee48ea02c5a83ce7cadac15e3ac2"
+      "version": "939a41839140228d5eeed438783a21358b55a852"
     },
     {
       "name": "vllm-xcpu-dev-kit",
       "path": "./",
       "type": "git-repository",
-      "version": "20ee02d77864a58f2d66355231e68513a5168fee"
+      "version": "a8b9edc0962f1b199590b0fb0d8aaab6c550ef1b"
     }
   ]
 }
