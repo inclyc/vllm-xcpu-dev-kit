@@ -1,3 +1,4 @@
+import importlib.util
 import json
 from pathlib import Path
 import shutil
@@ -5,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1] / "vllm_scripts"
@@ -182,6 +184,73 @@ class PCPLauncherTest(unittest.TestCase):
                             self.assertEqual(
                                 worker["args"][worker["args"].index("--rank") + 1], rank
                             )
+
+    def test_matrix_overrides_reach_service_templates(self):
+        spec = importlib.util.spec_from_file_location(
+            "pcp_matrix", ROOT / "e2e/pcp_matrix.py"
+        )
+        matrix = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(matrix)
+        for name, (pcp, tp, ep, mpi) in matrix.CASES.items():
+            with self.subTest(case=name):
+                for path in self.root.glob("call-*.json"):
+                    path.unlink()
+                env = dict(
+                    self.env,
+                    USER_VLLM_PCP_SIZE=str(pcp),
+                    RUN_VLLM_EFFECTIVE_TP_SIZE=str(tp),
+                    RUN_VLLM_EFFECTIVE_EXPERT_PARALLEL=str(ep),
+                    VLLM_CPU_USE_MPI=str(mpi),
+                    OMPI_COMM_WORLD_SIZE=str(pcp * tp),
+                )
+                result = self.run_shell(
+                    f'bash serve/serve_mp_rpc_all_mpi_template.sh -e "{PRESET}"', env
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                (server,) = [
+                    json.loads(p.read_text())
+                    for p in self.root.glob("call-*.json")
+                    if json.loads(p.read_text())["name"] == "vllm"
+                ]
+                args = server["args"]
+                self.assertIn(f"-tp={tp}", args)
+                self.assertEqual(
+                    args[args.index("--prefill-context-parallel-size") + 1], str(pcp)
+                )
+                self.assertEqual("--enable-expert-parallel" in args, bool(ep))
+                if ep:
+                    self.assertEqual(
+                        args[args.index("--all2all-backend") + 1],
+                        "torch_all_to_all_single",
+                    )
+                self.assertEqual(server["mpi"], str(mpi))
+
+    def test_matrix_calls_launcher_and_stops_on_failure(self):
+        spec = importlib.util.spec_from_file_location(
+            "pcp_matrix", ROOT / "e2e/pcp_matrix.py"
+        )
+        matrix = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(matrix)
+        output = self.root / "matrix"
+        with (
+            patch.object(sys, "argv", ["pcp_matrix.py", "--output-dir", str(output)]),
+            patch.object(
+                matrix.subprocess,
+                "run",
+                return_value=subprocess.CompletedProcess([], 7),
+            ) as run,
+        ):
+            with self.assertRaises(SystemExit) as error:
+                matrix.main()
+        self.assertEqual(error.exception.code, 7)
+        run.assert_called_once()
+        command = run.call_args.args[0]
+        self.assertEqual(command[:2], ["bash", str(ROOT / "run_vllm_test.sh")])
+        self.assertIn(PRESET, command)
+        self.assertEqual(
+            json.loads((output / "summary.json").read_text()),
+            [{"case": "baseline", "returncode": 7}],
+        )
 
     def test_wrong_mpi_world_size_is_rejected(self):
         result = self.run_shell(
