@@ -130,6 +130,19 @@ class PCPLauncherTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("WORKERS=6", result.stdout)
 
+    def test_mpi_launch_has_scoped_cleanup_without_afd(self):
+        result = self.run_shell(
+            'SCRIPT_DIR="$PWD"; source ./launcher_common.sh; '
+            'MPI_COUNT=2; ENV_ARGS=(); LAUNCH_LOG=/dev/null; '
+            'MPI_WORKERS_LOG=/dev/null; '
+            'setsid() { :; }; sleep() { :; }; record_pid() { :; }; '
+            'launcher_start_mpi; wait; '
+            'printf "RUN=%s HOST=%s\\n" "$VLLM_AF_RUN_ID" '
+            '"${AF_CLEANUP_HOSTS[0]}"'
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertRegex(result.stdout, r"RUN=afd_[0-9_]+ HOST=\S+")
+
     def test_serve_commands_and_worker_rank(self):
         for mpi in ("0", "1"):
             for template in ("mp", "head_only", "mp_rpc_all_mpi"):
