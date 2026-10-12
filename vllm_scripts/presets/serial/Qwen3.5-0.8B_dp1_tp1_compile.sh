@@ -1,7 +1,5 @@
 #!/bin/bash
-# Preset: Qwen3-30B-A3B-Instruct-2507
-# Configuration: DP=2, TP=2, PP=1, enforce-eager mode
-# MPI Processes: 4 (DP * TP * PP = 2 * 2 * 1)
+# Qwen3.5-0.8B compile; DP=1, PP=1, local MP, TP=1
 
 SCRIPT_DIR="$(realpath "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="${SCRIPT_DIR%/presets/*}"
@@ -12,8 +10,11 @@ export PD_MODE="NOT_MOE"
 # 加载基础模板配置
 source "$SCRIPT_DIR/user_env_template.sh"
 
+# Use one local worker, matching the serial eager preset.
+unset USER_VLLM_MP_RPC_WORKER_PER_NODE
+
 # 覆盖必要配置
-# export USER_VLLM_EAGER_OR_NOT="--enforce-eager"
+export USER_VLLM_EAGER_OR_NOT=""
 export TORCH_XCPU_ENABLE_CHECK=0
 export VLLM_OPTIONAL_ARGS="${VLLM_OPTIONAL_ARGS} --skip-mm-profiling"
 export USER_VLLM_MODEL="Qwen/Qwen3.5-0.8B"

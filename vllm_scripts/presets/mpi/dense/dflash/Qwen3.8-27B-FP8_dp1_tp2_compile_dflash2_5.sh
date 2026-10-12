@@ -1,6 +1,6 @@
 #!/bin/bash
-# Preset: Qwen3.6-27B with DFlash
-# Configuration: DP=1, TP=1, PP=1, compile mode
+# Preset: Qwen3.8-27B-FP8 with DFlash
+# Configuration: DP=1, TP=2, PP=1, compile mode
 
 SCRIPT_DIR="$(realpath "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="${SCRIPT_DIR%/presets/*}"
@@ -15,7 +15,7 @@ export TORCH_XCPU_ENABLE_CHECK=0
 export VLLM_OPTIONAL_ARGS="${VLLM_OPTIONAL_ARGS} --skip-mm-profiling"
 export USER_VLLM_MODEL="Qwen/Qwen3.8-27B-FP8"
 export USER_VLLM_DATA_PARALLEL_SIZE=1
-export USER_VLLM_TP_SIZE=1
+export USER_VLLM_TP_SIZE=2
 export USER_VLLM_PP_SIZE=1
 export USER_VLLM_MPC_SIZE=$((USER_VLLM_TP_SIZE * USER_VLLM_PP_SIZE))
 export VLLM_USE_MPI_COORD=1

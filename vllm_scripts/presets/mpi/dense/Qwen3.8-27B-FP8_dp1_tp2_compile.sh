@@ -1,7 +1,7 @@
 #!/bin/bash
-# Preset: Qwen3-30B-A3B-Instruct-2507
-# Configuration: DP=2, TP=2, PP=1, enforce-eager mode
-# MPI Processes: 4 (DP * TP * PP = 2 * 2 * 1)
+# Preset: Qwen3.8-27B-FP8
+# Configuration: DP=1, TP=2, PP=1, compile mode
+# MPI Processes: 2
 
 SCRIPT_DIR="$(realpath "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="${SCRIPT_DIR%/presets/*}"
@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/user_env_template.sh"
 
 # 覆盖必要配置
 export TORCH_XCPU_ENABLE_CHECK=0
-# export USER_VLLM_EAGER_OR_NOT="--enforce-eager"
+export USER_VLLM_EAGER_OR_NOT=""
 export USER_VLLM_MODEL="Qwen/Qwen3.8-27B-FP8"
 export USER_VLLM_DATA_PARALLEL_SIZE=1
 export USER_VLLM_TP_SIZE=2

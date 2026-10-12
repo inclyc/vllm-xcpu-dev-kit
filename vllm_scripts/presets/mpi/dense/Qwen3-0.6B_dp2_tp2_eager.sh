@@ -1,5 +1,5 @@
 #!/bin/bash
-# Preset: Qwen3-30B-A3B-Instruct-2507
+# Preset: Qwen3-0.6B
 # Configuration: DP=2, TP=2, PP=1, enforce-eager mode
 # MPI Processes: 4 (DP * TP * PP = 2 * 2 * 1)
 
