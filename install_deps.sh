@@ -27,11 +27,11 @@ echo -e "\n# Enable OpenMPI root access\nexport OMPI_ALLOW_RUN_AS_ROOT=1\nexport
 python3 -m venv .venv
 source .venv/bin/activate
 
-git clone -b dev/0.25 https://github.com/kzwrime/vllm-xcpu-plugin.git
-git clone -b dev_mcpu_v0.25.1 https://github.com/kzwrime/vllm.git
-git clone -b dev/0.25 https://github.com/kzwrime/torch_xcpu.git
+git clone -b dev/0.31 https://github.com/kzwrime/vllm-xcpu-plugin.git
+git clone -b dev/0.31 https://github.com/kzwrime/vllm.git
+git clone -b dev/0.31 https://github.com/kzwrime/torch_xcpu.git
 git clone https://github.com/kzwrime/torch_mpi_ext.git
-git clone -b dev/0.25 https://github.com/kzwrime/torch_mcpu.git
+git clone -b dev/0.31 https://github.com/kzwrime/torch_mcpu.git
 
 pip install -r vllm/requirements/build/cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
 pip install -r vllm/requirements/cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu

@@ -15,6 +15,8 @@
 
 # 端到端测试方法
 
+等待测试时，建议设置好合适的超时时间后，直接等待结束即可，不需要反复查看日志的状态。除非需要调试启动的早期状态或获取必要的信息。
+
 举例如下
 
 ```
@@ -42,6 +44,8 @@ vllm_scripts/presets/serial/Qwen3.5-0.8B_dp1_tp1_eager.sh
 日志一般在 ./vllm_scripts/logs/runs
 
 Compile 产物一般在 ./vllm_scripts/vllm_cache。涉及 compile 相关的调试时，建议提前删除/重命名该目录，否则可能存在不便定位或缓存污染的问题。
+
+Profiler 产物一般在 ./vllm_scripts/vllm_profile。需要确认算子序列时，可以直接解压 json.gz，观察最后的数十行到数千行左右，每行是一个 mcpu stream 上的算子。
 
 # torch_mcpu 内存保护
 

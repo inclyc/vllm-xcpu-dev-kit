@@ -1,1 +1,1 @@
-codex --sandbox danger-full-access
+codex --dangerously-bypass-approvals-and-sandbox

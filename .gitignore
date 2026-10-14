@@ -262,3 +262,4 @@ work
 # Release artifacts
 .release/repository_versions_currently.json
 .release/publish/
+vllm_scripts/vllm_cache.*
