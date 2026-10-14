@@ -1,0 +1,45 @@
+{
+  "model": "reduced seven-layer GLM5.2, dummy weights",
+  "cases": [
+    {
+      "weights": "fp8",
+      "dp": 1,
+      "tp": 2,
+      "expert_parallel": false,
+      "tokens_and_logprobs_exact_match": true,
+      "independent_shared_pools": 1,
+      "private_cache_backing_bytes": 16384000,
+      "shared_cache_backing_bytes": 8192000
+    },
+    {
+      "weights": "fp8",
+      "dp": 2,
+      "tp": 2,
+      "expert_parallel": true,
+      "tokens_and_logprobs_exact_match": true,
+      "independent_shared_pools": 2,
+      "private_cache_backing_bytes": 32768000,
+      "shared_cache_backing_bytes": 16384000
+    },
+    {
+      "weights": "mxfp4",
+      "dp": 1,
+      "tp": 2,
+      "expert_parallel": false,
+      "tokens_and_logprobs_exact_match": true,
+      "independent_shared_pools": 1,
+      "private_cache_backing_bytes": 16384000,
+      "shared_cache_backing_bytes": 8192000
+    },
+    {
+      "weights": "mxfp4",
+      "dp": 2,
+      "tp": 2,
+      "expert_parallel": true,
+      "tokens_and_logprobs_exact_match": true,
+      "independent_shared_pools": 2,
+      "private_cache_backing_bytes": 32768000,
+      "shared_cache_backing_bytes": 16384000
+    }
+  ]
+}
