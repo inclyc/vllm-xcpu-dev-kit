@@ -137,7 +137,12 @@ def main():
     )
     llm = LLM(
         model=args.model
-        or (f"/workspace/models/ZhipuAI/GLM-5.2-{args.weights}-dummy-7-layer-lite"),
+        or (
+            str(
+                Path(__file__).resolve().parents[2]
+                / f"models/ZhipuAI/GLM-5.2-{args.weights}-dummy-7-layer-lite"
+            )
+        ),
         load_format="safetensors" if args.model else "dummy",
         skip_tokenizer_init=not args.model,
         tensor_parallel_size=2,
