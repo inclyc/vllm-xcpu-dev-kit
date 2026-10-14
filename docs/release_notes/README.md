@@ -35,11 +35,28 @@ python3 scripts/generate_update_notes.py --generate-template
 ### 统计范围与收录边界
 
 - 先明确统计起点和终点，正文写明日期及终点完整 commit，例如“2026-07-22（含）至 `<40 位 HEAD>`”。若交付后的修改区间与版本清单基线不同，以人工确认的交付区间为准。
+- 若约定只说明新版本分支自身的开发，排除旧版本分支合入的变更，须同时过滤 merge 提交及其带入的侧线提交。新分支作为第一父链、旧分支通过 merge 合入时，可按 `git log --first-parent --no-merges <base>..<release-head>` 枚举，并核对分支来源；仅用 `--no-merges` 不足以排除旧分支的普通提交。
+- 上述分支范围同时适用于更新重点、各仓库提交清单和算子条目。算子若同时涉及新分支修改和旧分支合入内容，只描述入选提交实际修改的部分；源码包仍按发布 HEAD 的完整代码生成。
 - 逐个检查区间内触及 `torch_xcpu_impl/include`、`torch_xcpu_impl/src` 和 `torch_xcpu_impl/backends` 的 commit。重点是从核实现、参数结构、调度和数据布局变化；同时检查 `torch_xcpu/csrc`、`torch_xcpu/ops_defs` 与测试，确认 Torch schema、Python 包装和可验证行为。
 - 收录会影响算子实现或接入的变化，包括：新增算子、参数或 schema 变化、dtype/shape/layout/stride 变化、边界条件修复、任务切分或 kernel launch 变化，以及需要算子团队重新校验的性能修改。
 - 不要仅根据 commit 标题筛选。一个大型重构提交可能顺带修改其他算子，例如给空输入增加提前返回；必须检查实际 diff，避免遗漏。
 - 默认不额外描述正常交付阶段完成的整块功能或重构，例如约定排除的 MoE、FP8、MXFP4 部分；但该模块中若有明确属于交付后区间的独立算子兼容性修改，仍应单独记录。项目负责人明确要求忽略的算子也不写入本节。
 - 若一个算子在区间内先新增、后改名或删除，以发布终点的最终状态为准，不把已经删除的中间接口写成可交付接口。
+
+### 按 B0 影响划分子章节
+
+`torch_xcpu 算子变更` 必须按以下顺序分为两个子章节；某一类没有变更时也保留标题并注明“无”：
+
+```markdown
+### 影响 B0 算子实现
+
+### 不影响 B0 算子实现
+```
+
+- **影响 B0 算子实现**：收录需要 B0 算子团队同步实现或重新校验的实际变化，包括新增计算核、mcpu launch impl 参数/ABI、dtype/shape/layout/stride 契约、数据搬运、任务切分、计算语义及边界处理。条目须明确 B0 需要跟进的内容，优先突出这些变化，避免混入仅高层接入的信息。
+- **不影响 B0 算子实现**：收录仅涉及 Python 包装、FakeTensor、入口校验、注册或组合调度，且未改变底层计算契约和 launch impl 的变化。简要说明调用方需要调整什么，以及为何无需修改 B0 实现。
+- 以实际 diff 和执行路径判断，不以文件所在目录或是否直接修改 B0 代码判断。`torch_xcpu/include`、`torch_xcpu/csrc` 中也可能包含实际 launch；A0 参考实现的契约或行为变化若需要 B0 同步，仍归入“影响 B0 算子实现”。新增算子的 B0 仅为占位入口时，应明确标注，不能据此归入“不影响”。
+- 同一算子同时包含两类变化时，将具体变化分别放入两个子章节，各自列对应提交；不要在“不影响”章节重复展开 B0 跟进事项。分类不能替代前述提交范围筛选，已排除的分支变更不得重新收录。
 
 ### 算子名称与分类
 
@@ -54,8 +71,8 @@ python3 scripts/generate_update_notes.py --generate-template
 
 ```markdown
 - `operator_name`（新增算子/小修改/中等修改/大修改）：说明最终接口或实现发生了什么、调用方或从核为什么需要跟进
-	- commit `<40 位 commit>`：<commit subject>
-	- 测试：`torch_xcpu/test/.../test_operator.py`
+  - commit `<40 位 commit>`：<commit subject>
+  - 测试：`torch_xcpu/test/.../test_operator.py`
 ```
 
 - “小修改”通常是局部边界处理或不改变正常输入契约的修复；“中等修改”通常涉及 dtype、可选参数、stride、shape 支持或调度方式；“大修改”通常涉及 ABI/schema、核心布局或算法路径变化。
@@ -71,7 +88,8 @@ python3 scripts/generate_update_notes.py --generate-template
 2. 单独枚举新增的 schema、参数结构和实现文件，确认新增算子没有被误并入基础算子。
 3. 检查大型提交中的非主题文件，确认没有遗漏顺带发生的算子修复。
 4. 对照发布终点代码，删除只存在于中间提交、最终已经撤销或替换的接口描述。
-5. 核对每个 commit hash 和测试路径真实存在，并运行 Markdown 格式检查。
+5. 确认算子变更已分为“影响 B0 算子实现”和“不影响 B0 算子实现”两个子章节，并按实际 launch impl 与计算契约核对归类。
+6. 核对每个 commit hash 和测试路径真实存在，并运行 Markdown 格式检查。
 
 ## 更新版本清单
 
